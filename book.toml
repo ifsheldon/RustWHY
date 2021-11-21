@@ -1,0 +1,6 @@
+[book]
+authors = ["Feng Liang"]
+language = "cn"
+multilingual = true
+src = "src"
+title = "RustWHY"
