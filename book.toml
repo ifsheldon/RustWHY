@@ -4,3 +4,7 @@ language = "cn"
 multilingual = true
 src = "src"
 title = "RustWHY"
+
+[build]
+build-dir = "docs"
+create-missing = true
