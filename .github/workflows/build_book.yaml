@@ -16,7 +16,8 @@ jobs:
       - name: Install mdbook
         uses: actions-rs/cargo@v1
         with:
-          command: install mdbook
+          command: install
+          args: mdbook
       
       - name: Build book
         run: mdbook build
