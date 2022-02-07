@@ -2,16 +2,14 @@
 
 * [README](../README.md)
 
-## Face
-
-* [封面](face.md)
+## [封面](face.md)
 
 
-## Engineering Features
+## [工程特性](./engineering_features/opening.md)
 
 * [为什么要有 Associate Type？它和普通的泛型的区别是什么？](engineering\_features/why\_associated\_type.md)
 
-## Design Choices
+## [设计选择](./design_choices/opening.md)
 
 * [为什么没有继承？](design\_choices/why\_not\_inheritance.md)
 * [为什么没有全局变量？](design\_choices/why\_not\_global\_variable.md)
