@@ -6,9 +6,6 @@
 
 * [封面](face.md)
 
-## Preface
-
-* [首页](preface.md)
 
 ## Engineering Features
 
