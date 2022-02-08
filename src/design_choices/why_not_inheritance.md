@@ -53,7 +53,7 @@
 
 另外一个，值得反思的是，为什么继承就一定会把属性和方法都继承了？属性是一个类需要的数据，方法是一个类的行为，数据和行为可能有关也可能无关，为什么要捆绑一起作为继承大礼包？
 
-所以，基于上面的理由，Rust 选择完全抛开继承的概念，重新审视如何更好地复用代码。
+所以，基于上面的理由，Rust 选择完全抛开继承的概念，**重新审视**如何更好地复用代码。
 
 首先，对于代码复用，Rust Book 中提到可以使用`trait`，因为`trait`可以有默认实现，如果不想重新写代码，那么就使用默认实现就好了。另外`trait`还可以有Super Trait（介绍见 [Rust Book - super trait](https://doc.rust-lang.org/book/ch19-03-advanced-traits.html#using-supertraits-to-require-one-traits-functionality-within-another-trait)），就可以定义`trait`之间的层级。有人说，那 Super Trait 不就是像继承了吗？这个问题我们在附录中讨论。
 
@@ -101,6 +101,10 @@ impl Circle{
 这样，就算 Composition 的层级再多，看代码的时候总能追踪回原来的实现，就像是上面`Circle::area`到`Ellipse::area`一样。虽然层级过多时，难以管理代码的问题依旧存在，但是至少可以减缓一点。
 
 综上，Rust 抛弃了继承，选择了结合`trait`、泛型和Trait Bound 的组合（Composition）模式，解决了大部分继承带来的问题，同时尽量不引入太多的新问题、新限制，提高灵活度的同时也尽量保持了代码的可复用性。
+
+
+
+有人说，有道理，但是我就想要继承，我连上面`Circle::area`这样的委托函数（delegate）都不想写，那可以怎么办？参见附录中的`Deref` Anti-pattern。
 
 ## 相关链接
 
@@ -160,3 +164,51 @@ impl Circle{
     ```
 
     
+
+### `Deref` Anti-pattern
+
+参考自 [Rust Design Patterns](https://rust-unofficial.github.io/patterns/anti_patterns/deref.html)。
+
+太长不看版：
+
+Rust 中`Deref`是这样定义的，一般用来实现智能指针，比如说`Box<T>`就可以实现`Deref`并且让`Target=T`。
+
+```rust
+pub trait Deref {
+    type Target: ?Sized;
+    fn deref(&self) -> &Self::Target;
+}
+```
+
+但是既然可以随便指定`Target`，那么我们可以滥用这个来模拟继承，像这样（例子来自于参考）：
+
+```rust
+struct Foo {}
+
+impl Foo {
+    fn m(&self) {
+        //..
+    }
+}
+
+struct Bar {
+    f: Foo,
+}
+
+impl Deref for Bar {
+    type Target = Foo;
+    fn deref(&self) -> &Foo {
+        &self.f
+    }
+}
+
+fn main() {
+    let b = Bar { f: Foo {} };
+    b.m();
+}
+```
+
+那么`b.m()`就实际上是`b.deref().m()`，从而实际上实现了继承方法的作用。
+
+但是这种用法属于滥用，**强烈建议不要使用**。在一个 `crate` 里，`impl` 和 `struct` 定义块常常可以分开，这通常问题不大，因为 IDE 可以帮忙搜索出一个类型的方法定义在哪个 `impl` 块里。然而，`Deref` 是一个微妙的语法糖，IDE 不一定能从 `b.m()` 帮忙找到 `Foo::m` ，而你可以把 `struct Foo` 和 `struct Bar` 的定义分开放并且把 `impl Deref for Bar` 代码块放在项目里十万八千里外的地方。相信没有人想遇上这样的状况，所以己所不欲勿施于人，Love and Peace❤️
+
