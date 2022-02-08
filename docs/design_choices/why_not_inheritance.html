@@ -188,7 +188,7 @@
 <li>代码复用</li>
 <li>多态</li>
 </ol>
-<p>其实多态在<strong>一定程度</strong>上也可以说是为了代码复用，所以终极的原因还是代 cheng 码 xu 可 yuan 复 tou 用 lan。所以这也表现在继承的具体实现上了。通过继承，程序员可以不用写父类已经有的方法，也可以不用声明父类已经有的属性，这就让代码更加能被复用了。</p>
+<p>其实多态在<strong>一定程度</strong>上也可以说是为了代码复用，所以终极的原因还是代码可复用。所以这也表现在继承的具体实现上了。通过继承，程序员可以不用写父类已经有的方法，也可以不用声明父类已经有的属性，这就让代码更加能被复用了。</p>
 <p>那么看起来继承全是好处，所以程序员和继承 forever and forever 100 years!? </p>
 <p>这时候学过软件工程的同学应该会搬出一个词来反驳了，那就是“耦合”(Coupling)。“耦合”说的是组件之间的依赖程度，那么，如果把父类和子类看成是两个组件，那么他们之间的耦合应该是最高的，也就是依赖程度最高。而高耦合一般是认为不好的，就不展开讲了。举个不恰当的例子，小时候买东西都要爸妈出钱，而爸妈 diss 你到了最后总是会回到一句话“你吃我的穿我的还这么不听话“，而就算占理的是你，也只能认怂。这就是高耦合的坏处🐶</p>
 <p>所以顺着高耦合的坏处，我们来到了继承机制的坏处，也就是为什么不（”Why not“）。</p>
@@ -199,7 +199,7 @@
 <p>第三个理由是，如果一个编程语言允许多继承，那么还会有<a href="https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem">菱形继承问题</a>，这里就不展开了。</p>
 <p>最后一个理由是，当继承的层级过多，记忆、管理继承下来的属性和方法就非常麻烦，使得代码更难读懂，更难理解。或许有人也曾遇到过我这样的情况，接手或学习别人的代码的时候，看到别人在代码里用了一个属性或者方法，但是在当前类中找不到，最后发现是定义在了父类中（甚至父类的父类，甚至曾祖父类中）。而如果想要定义一个子类，写一个方法，没准就是在重复造轮子，别人早早就在你继承的父类（或者祖父类，曾祖父类）中写好了，只是用了一个不同的名字。</p>
 <p>另外一个，值得反思的是，为什么继承就一定会把属性和方法都继承了？属性是一个类需要的数据，方法是一个类的行为，数据和行为可能有关也可能无关，为什么要捆绑一起作为继承大礼包？</p>
-<p>所以，基于上面的理由，Rust 选择完全抛开继承的概念，重新审视如何更好地复用代码。</p>
+<p>所以，基于上面的理由，Rust 选择完全抛开继承的概念，<strong>重新审视</strong>如何更好地复用代码。</p>
 <p>首先，对于代码复用，Rust Book 中提到可以使用<code>trait</code>，因为<code>trait</code>可以有默认实现，如果不想重新写代码，那么就使用默认实现就好了。另外<code>trait</code>还可以有Super Trait（介绍见 <a href="https://doc.rust-lang.org/book/ch19-03-advanced-traits.html#using-supertraits-to-require-one-traits-functionality-within-another-trait">Rust Book - super trait</a>），就可以定义<code>trait</code>之间的层级。有人说，那 Super Trait 不就是像继承了吗？这个问题我们在附录中讨论。</p>
 <p>对于多态，Rust Book 里提出可以使用泛型加 Trait Bound。</p>
 <blockquote>
@@ -239,6 +239,7 @@ impl Circle{
 <p>事实上，Rust 的编程建模模式更像是组合（Composition） 而不是继承（Inheritance）。继承使用的是隐式”复制代码“，而在这个例子中，程序员要显式地在<code>Circle::area</code>中调用<code>Ellipse::area</code>。虽然多余的代码写多了一点点，但是可以清晰地指出依赖层级。</p>
 <p>这样，就算 Composition 的层级再多，看代码的时候总能追踪回原来的实现，就像是上面<code>Circle::area</code>到<code>Ellipse::area</code>一样。虽然层级过多时，难以管理代码的问题依旧存在，但是至少可以减缓一点。</p>
 <p>综上，Rust 抛弃了继承，选择了结合<code>trait</code>、泛型和Trait Bound 的组合（Composition）模式，解决了大部分继承带来的问题，同时尽量不引入太多的新问题、新限制，提高灵活度的同时也尽量保持了代码的可复用性。</p>
+<p>有人说，有道理，但是我就想要继承，我连上面<code>Circle::area</code>这样的委托函数（delegate）都不想写，那可以怎么办？参见附录中的<code>Deref</code> Anti-pattern。</p>
 <h2 id="相关链接"><a class="header" href="#相关链接">相关链接</a></h2>
 <ul>
 <li>Rust 社区中的讨论 <a href="https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159">how to implement inheritance-like feature for rust</a></li>
@@ -297,6 +298,46 @@ fn main() {
 </code></pre></pre>
 </li>
 </ul>
+<h3 id="deref-anti-pattern"><a class="header" href="#deref-anti-pattern"><code>Deref</code> Anti-pattern</a></h3>
+<p>参考自 <a href="https://rust-unofficial.github.io/patterns/anti_patterns/deref.html">Rust Design Patterns</a>。</p>
+<p>太长不看版：</p>
+<p>Rust 中<code>Deref</code>是这样定义的，一般用来实现智能指针，比如说<code>Box&lt;T&gt;</code>就可以实现<code>Deref</code>并且让<code>Target=T</code>。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Deref {
+    type Target: ?Sized;
+    fn deref(&amp;self) -&gt; &amp;Self::Target;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>但是既然可以随便指定<code>Target</code>，那么我们可以滥用这个来模拟继承，像这样（例子来自于参考）：</p>
+<pre><pre class="playground"><code class="language-rust">struct Foo {}
+
+impl Foo {
+    fn m(&amp;self) {
+        //..
+    }
+}
+
+struct Bar {
+    f: Foo,
+}
+
+impl Deref for Bar {
+    type Target = Foo;
+    fn deref(&amp;self) -&gt; &amp;Foo {
+        &amp;self.f
+    }
+}
+
+fn main() {
+    let b = Bar { f: Foo {} };
+    b.m();
+}
+</code></pre></pre>
+<p>那么<code>b.m()</code>就实际上是<code>b.deref().m()</code>，从而实际上实现了继承方法的作用。</p>
+<p>但是这种用法属于滥用，<strong>强烈建议不要使用</strong>。在一个 <code>crate</code> 里，<code>impl</code> 和 <code>struct</code> 定义块常常可以分开，这通常问题不大，因为 IDE 可以帮忙搜索出一个类型的方法定义在哪个 <code>impl</code> 块里。然而，<code>Deref</code> 是一个微妙的语法糖，IDE 不一定能从 <code>b.m()</code> 帮忙找到 <code>Foo::m</code> ，而你可以把 <code>struct Foo</code> 和 <code>struct Bar</code> 的定义分开放并且把 <code>impl Deref for Bar</code> 代码块放在项目里十万八千里外的地方。相信没有人想遇上这样的状况，所以己所不欲勿施于人，Love and Peace❤️</p>
 
                     </main>
 
