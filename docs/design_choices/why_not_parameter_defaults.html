@@ -166,7 +166,35 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="为什么没有缺省参数"><a class="header" href="#为什么没有缺省参数">为什么没有缺省参数？</a></h1>
-<p>Coming</p>
+<h2 id="答案很直白"><a class="header" href="#答案很直白">答案很直白</a></h2>
+<ul>
+<li>
+<p>Rust 的设计哲学之一是 Be Explicit，翻译过来就是不要藏着掖着的，越直白越好。函数缺省参数违背了这一条设计哲学，所以没有引入。</p>
+<ul>
+<li>函数描述的是行为，什么样的输入会导致什么行为应该越明显越好，并且函数名与函数的输入应该直截了当地描述函数的行为。</li>
+</ul>
+</li>
+<li>
+<p>缺省参数使得数据流变得更加散乱，在工程上也有坏处。</p>
+<ul>
+<li>
+<p>举例子，如果你尝试过看别人的 Python 代码来复现深度学习模型的话，看到无处不在的默认值肯定会非常头疼，就像下面的例子。简而言之，如果你不喜欢硬编码的绝对文件路径，那你也应该理解没有人想要看一堆全是默认值的代码。</p>
+<pre><code class="language-python">def layer(x, parameter=0.1, use_branch=False):
+    if use_branch:
+        return some_op(x, alpha=parameter)
+    else:
+        return x * parameter
+    
+x0 = layer(y, 0.2, True)
+x1 = layer(x0)
+x2 = layer(x1, use_branch=False)
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="真的没有缺省值吗"><a class="header" href="#真的没有缺省值吗">真的没有缺省值吗？</a></h2>
+<p>其实也是有的，对于一个<strong>类型</strong>来说，可以通过<code>impl Default</code>的方法来指定类型的实例的默认值。但是这个是非常局限的应用，看代码的人可以直接找到<code>impl</code>块获得所有的默认值信息，所以影响不大。</p>
 
                     </main>
 
