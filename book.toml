@@ -8,3 +8,6 @@ title = "RustWHY"
 [build]
 build-dir = "docs"
 create-missing = true
+
+[output.html]
+cname = "fengliang.io"
