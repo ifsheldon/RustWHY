@@ -3,11 +3,8 @@ authors = ["Feng Liang"]
 language = "cn"
 multilingual = true
 src = "src"
-title = "RustWHY"
+title = "RustWhy"
 
 [build]
 build-dir = "docs"
 create-missing = true
-
-[output.html]
-cname = "fengliang.io"
