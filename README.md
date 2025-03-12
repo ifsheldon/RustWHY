@@ -1,4 +1,4 @@
-# [Rust 十万个为什么](https://fengliang.io/RustWHY/)
+# [Rust 十万个为什么](https://rustwhy.reify.ing/)
 这里整理了一些 Rust 独特的特性，并且尝试解释为什么需要这些特性。
 
 这里不回答 “Why Rust?” 而是希望汇集一些对 Rust 的思考。
